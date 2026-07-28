@@ -15,10 +15,12 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-//    @NotEmpty(message = "File name can't be empty")
-    private String fileName;
+    //    @NotEmpty(message = "File name can't be empty")
+    private String originalFileName;
 
-//    @NotEmpty(message = "File type can't be empty")
+    private String storedFileName;
+
+    //    @NotEmpty(message = "File type can't be empty")
     private String fileType;
 
 
@@ -27,9 +29,10 @@ public class Document {
 
 //    Constructors
 
-    public Document(int id, String fileName, String fileType, LocalDateTime uploadedAt) {
+    public Document(int id, String originalFileName, String fileType, LocalDateTime uploadedAt, String storedFileName) {
 
-        this.fileName = fileName;
+        this.originalFileName = originalFileName;
+        this.storedFileName = storedFileName;
         this.fileType = fileType;
         this.id = id;
         this.uploadedAt = uploadedAt;
@@ -50,12 +53,12 @@ public class Document {
         this.id = id;
     }
 
-    public String getFileName() {
-        return this.fileName;
+    public String getOriginalFileName() {
+        return this.originalFileName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public String getFileType() {
@@ -70,7 +73,12 @@ public class Document {
         return this.uploadedAt;
     }
 
-    private void setUploadedAt(LocalDateTime uploadedAt) {
-        this.uploadedAt = uploadedAt;
+
+    public String getStoredFileName() {
+        return storedFileName;
+    }
+
+    public void setStoredFileName(String storedFileName) {
+        this.storedFileName = storedFileName;
     }
 }

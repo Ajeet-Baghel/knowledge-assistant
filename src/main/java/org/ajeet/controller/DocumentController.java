@@ -25,7 +25,7 @@ public class DocumentController {
 //    Request mappings
 
     @GetMapping()
-    public List<DocumentResponse> getAllDocumet() {
+    public List<DocumentResponse> getAllDocument() {
         return this.documentService.getAllDocuments();
     }
 
