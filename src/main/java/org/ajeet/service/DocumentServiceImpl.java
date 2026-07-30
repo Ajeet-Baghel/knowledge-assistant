@@ -4,6 +4,7 @@ import org.ajeet.config.FileStorageConfig;
 import org.ajeet.dto.DocumentResponse;
 import org.ajeet.entity.Document;
 import org.ajeet.repository.DocumentRepository;
+import org.ajeet.service.PDF.PdfExtractionService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,11 +21,13 @@ public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
     private final FileStorageConfig fileStorageConfig;
+    private final PdfExtractionService pdfExtractionService;
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
-                               FileStorageConfig fileStorageConfig) {
+                               FileStorageConfig fileStorageConfig, PdfExtractionService pdfExtractionService) {
         this.documentRepository = documentRepository;
         this.fileStorageConfig = fileStorageConfig;
+        this.pdfExtractionService = pdfExtractionService;
     }
 
     @Override
@@ -35,6 +38,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         String uniqueFileName;
+        Path targetPath;
 
         try {
 
@@ -48,7 +52,7 @@ public class DocumentServiceImpl implements DocumentService {
             uniqueFileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
             // Full path of the file
-            Path targetPath = uploadPath.resolve(uniqueFileName);
+             targetPath = uploadPath.resolve(uniqueFileName);
 
             // Save file to disk
             file.transferTo(targetPath);
@@ -56,6 +60,10 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file", e);
         }
+
+        String extractedText = pdfExtractionService.extractText(targetPath);
+
+
 
         // Save metadata in database
         Document document = new Document();

@@ -10,6 +10,6 @@ public class FileStorageConfig {
     private String uploadDir;
 
     public String getUploadDir() {
-        return uploadDir;
+        return this.uploadDir;
     }
 }
