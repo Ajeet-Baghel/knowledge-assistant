@@ -7,6 +7,7 @@ import org.ajeet.repository.DocumentRepository;
 import org.ajeet.service.PDF.PdfExtractionService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.ajeet.service.chunk.ChunkingService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,13 +23,18 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final FileStorageConfig fileStorageConfig;
     private final PdfExtractionService pdfExtractionService;
+    private final ChunkingService textChunkingService;
+
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
-                               FileStorageConfig fileStorageConfig, PdfExtractionService pdfExtractionService) {
+                               FileStorageConfig fileStorageConfig, PdfExtractionService pdfExtractionService, ChunkingService textChunkingService) {
         this.documentRepository = documentRepository;
         this.fileStorageConfig = fileStorageConfig;
         this.pdfExtractionService = pdfExtractionService;
+        this.textChunkingService = textChunkingService;
+
     }
+
 
     @Override
     public DocumentResponse uploadDocument(MultipartFile file) {
@@ -52,7 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
             uniqueFileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
             // Full path of the file
-             targetPath = uploadPath.resolve(uniqueFileName);
+            targetPath = uploadPath.resolve(uniqueFileName);
 
             // Save file to disk
             file.transferTo(targetPath);
@@ -63,6 +69,12 @@ public class DocumentServiceImpl implements DocumentService {
 
         String extractedText = pdfExtractionService.extractText(targetPath);
 
+        List<String> chunks = textChunkingService.chunkText(extractedText);
+
+//        for (int i = 0; i < chunks.size(); i++) {      for local testing
+//            System.out.println("===== CHUNK " + (i + 1) + " =====");
+//            System.out.println(chunks.get(i));
+//        }
 
 
         // Save metadata in database
