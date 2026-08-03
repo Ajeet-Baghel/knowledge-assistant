@@ -8,6 +8,7 @@ import org.ajeet.service.PDF.PdfExtractionService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.ajeet.service.chunk.ChunkingService;
+import org.ajeet.service.embedding.EmbedingService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,14 +25,19 @@ public class DocumentServiceImpl implements DocumentService {
     private final FileStorageConfig fileStorageConfig;
     private final PdfExtractionService pdfExtractionService;
     private final ChunkingService textChunkingService;
+    private final EmbedingService embedingService;
 
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
-                               FileStorageConfig fileStorageConfig, PdfExtractionService pdfExtractionService, ChunkingService textChunkingService) {
+                               FileStorageConfig fileStorageConfig,
+                               PdfExtractionService pdfExtractionService,
+                               ChunkingService textChunkingService,
+                               EmbedingService embedingService) {
         this.documentRepository = documentRepository;
         this.fileStorageConfig = fileStorageConfig;
         this.pdfExtractionService = pdfExtractionService;
         this.textChunkingService = textChunkingService;
+        this.embedingService = embedingService;
 
     }
 
@@ -75,6 +81,10 @@ public class DocumentServiceImpl implements DocumentService {
 //            System.out.println("===== CHUNK " + (i + 1) + " =====");
 //            System.out.println(chunks.get(i));
 //        }
+        List<float[]> embeddings = embedingService.generateEmbeddings(chunks);
+
+//        System.out.println("Chunks: " + chunks.size());  for testing embedding
+//        System.out.println("Embeddings: " + embeddings.size());
 
 
         // Save metadata in database
