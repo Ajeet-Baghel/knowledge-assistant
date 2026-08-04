@@ -1,8 +1,8 @@
 package org.ajeet.service;
 
-import org.ajeet.dto.DocumentRequest;
+//import org.ajeet.dto.DocumentRequest;
 import org.ajeet.dto.DocumentResponse;
-import org.ajeet.entity.Document;
+//import org.ajeet.entity.Document;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

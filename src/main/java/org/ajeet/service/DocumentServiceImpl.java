@@ -3,6 +3,8 @@ package org.ajeet.service;
 import org.ajeet.config.FileStorageConfig;
 import org.ajeet.dto.DocumentResponse;
 import org.ajeet.entity.Document;
+import org.ajeet.entity.DocumentChunk;
+import org.ajeet.repository.DocumentChunkRepository;
 import org.ajeet.repository.DocumentRepository;
 import org.ajeet.service.PDF.PdfExtractionService;
 import org.springframework.stereotype.Service;
@@ -26,22 +28,22 @@ public class DocumentServiceImpl implements DocumentService {
     private final PdfExtractionService pdfExtractionService;
     private final ChunkingService textChunkingService;
     private final EmbedingService embedingService;
-
+    private final DocumentChunkRepository documentChunkRepository;
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
                                FileStorageConfig fileStorageConfig,
                                PdfExtractionService pdfExtractionService,
                                ChunkingService textChunkingService,
-                               EmbedingService embedingService) {
+                               EmbedingService embedingService,
+                               DocumentChunkRepository documentChunkRepository) {
         this.documentRepository = documentRepository;
         this.fileStorageConfig = fileStorageConfig;
         this.pdfExtractionService = pdfExtractionService;
         this.textChunkingService = textChunkingService;
         this.embedingService = embedingService;
+        this.documentChunkRepository = documentChunkRepository;
 
     }
-
-
     @Override
     public DocumentResponse uploadDocument(MultipartFile file) {
 
@@ -85,7 +87,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 //        System.out.println("Chunks: " + chunks.size());  for testing embedding
 //        System.out.println("Embeddings: " + embeddings.size());
-
+//        System.out.println("Embedding Dimension: " + embeddings.get(0).length);
 
         // Save metadata in database
         Document document = new Document();
@@ -103,9 +105,25 @@ public class DocumentServiceImpl implements DocumentService {
         response.setFileType(savedDocument.getFileType());
         response.setUploadedAt(savedDocument.getUploadedAt());
 
+        List<DocumentChunk> documentChunks = new ArrayList<>();
+        if (chunks.size() != embeddings.size()) {
+            throw new IllegalStateException("Chunk and embedding counts do not match.");
+        }
+
+        for (int i = 0; i < chunks.size(); i++) {
+
+            DocumentChunk documentChunk = new DocumentChunk();
+
+            documentChunk.setDocument(savedDocument);
+            documentChunk.setChunkNumber(i + 1);
+            documentChunk.setChunkText(chunks.get(i));
+            documentChunk.setEmbedding(embeddings.get(i));
+
+            documentChunks.add(documentChunk);
+        }
+        documentChunkRepository.saveAll(documentChunks);
         return response;
     }
-
     @Override
     public List<DocumentResponse> getAllDocuments() {
 
@@ -124,7 +142,6 @@ public class DocumentServiceImpl implements DocumentService {
 
             responses.add(response);
         }
-
         return responses;
     }
 
@@ -134,7 +151,6 @@ public class DocumentServiceImpl implements DocumentService {
         if (!documentRepository.existsById(id)) {
             throw new RuntimeException("Document not found with id: " + id);
         }
-
         documentRepository.deleteById(id);
     }
 }
