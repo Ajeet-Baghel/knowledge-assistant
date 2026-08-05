@@ -2,6 +2,8 @@ spring:
   ai:
     ollama:
       base-url: http://localhost:11434
+      chat:
+        model: llama3.2
       embedding:
         model: nomic-embed-text
   application:
