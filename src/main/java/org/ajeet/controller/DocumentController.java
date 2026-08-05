@@ -41,4 +41,10 @@ public class DocumentController {
         this.documentService.deleteDocument(id);
         return ResponseEntity.ok("Deleted ");
     }
+
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<String> deleteAllDocuments() {
+        this.documentService.deleteAllDocuments();
+        return ResponseEntity.ok("Deleted All");
+    }
 }

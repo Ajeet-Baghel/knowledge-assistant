@@ -7,10 +7,11 @@ import org.ajeet.entity.DocumentChunk;
 import org.ajeet.repository.DocumentChunkRepository;
 import org.ajeet.repository.DocumentRepository;
 import org.ajeet.service.PDF.PdfExtractionService;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.ajeet.service.chunk.ChunkingService;
-import org.ajeet.service.embedding.EmbedingService;
+import org.ajeet.service.embedding.EmbeddingService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,24 +28,26 @@ public class DocumentServiceImpl implements DocumentService {
     private final FileStorageConfig fileStorageConfig;
     private final PdfExtractionService pdfExtractionService;
     private final ChunkingService textChunkingService;
-    private final EmbedingService embedingService;
+    private final EmbeddingService embedingService;
     private final DocumentChunkRepository documentChunkRepository;
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
                                FileStorageConfig fileStorageConfig,
                                PdfExtractionService pdfExtractionService,
                                ChunkingService textChunkingService,
-                               EmbedingService embedingService,
+                               EmbeddingService embedingService,
                                DocumentChunkRepository documentChunkRepository) {
+
         this.documentRepository = documentRepository;
         this.fileStorageConfig = fileStorageConfig;
         this.pdfExtractionService = pdfExtractionService;
         this.textChunkingService = textChunkingService;
         this.embedingService = embedingService;
         this.documentChunkRepository = documentChunkRepository;
-
     }
+
     @Override
+    @Transactional
     public DocumentResponse uploadDocument(MultipartFile file) {
 
         if (file.isEmpty()) {
@@ -56,40 +59,35 @@ public class DocumentServiceImpl implements DocumentService {
 
         try {
 
-            // Upload directory
             Path uploadPath = Paths.get(fileStorageConfig.getUploadDir());
 
-            // Create directory if it doesn't exist
             Files.createDirectories(uploadPath);
 
-            // Generate unique filename
             uniqueFileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
-            // Full path of the file
             targetPath = uploadPath.resolve(uniqueFileName);
 
-            // Save file to disk
             file.transferTo(targetPath);
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file", e);
         }
 
+        // Extract text
         String extractedText = pdfExtractionService.extractText(targetPath);
 
+        // Chunk text
         List<String> chunks = textChunkingService.chunkText(extractedText);
 
-//        for (int i = 0; i < chunks.size(); i++) {      for local testing
-//            System.out.println("===== CHUNK " + (i + 1) + " =====");
-//            System.out.println(chunks.get(i));
-//        }
+        // Generate embeddings
         List<float[]> embeddings = embedingService.generateEmbeddings(chunks);
 
-//        System.out.println("Chunks: " + chunks.size());  for testing embedding
-//        System.out.println("Embeddings: " + embeddings.size());
-//        System.out.println("Embedding Dimension: " + embeddings.get(0).length);
+        // Safety check
+        if (chunks.size() != embeddings.size()) {
+            throw new IllegalStateException("Chunk and embedding counts do not match.");
+        }
 
-        // Save metadata in database
+        // Save document metadata
         Document document = new Document();
         document.setOriginalFileName(file.getOriginalFilename());
         document.setStoredFileName(uniqueFileName);
@@ -97,7 +95,10 @@ public class DocumentServiceImpl implements DocumentService {
 
         Document savedDocument = documentRepository.save(document);
 
-        // Prepare response
+        // Save all chunks
+        saveDocumentChunks(savedDocument, chunks, embeddings);
+
+        // Build response
         DocumentResponse response = new DocumentResponse();
         response.setId(savedDocument.getId());
         response.setOriginalFileName(savedDocument.getOriginalFileName());
@@ -105,29 +106,39 @@ public class DocumentServiceImpl implements DocumentService {
         response.setFileType(savedDocument.getFileType());
         response.setUploadedAt(savedDocument.getUploadedAt());
 
+        return response;
+    }
+
+    /**
+     * Saves all chunks and their embeddings for a document.
+     */
+    private void saveDocumentChunks(
+            Document document,
+            List<String> chunks,
+            List<float[]> embeddings) {
+
         List<DocumentChunk> documentChunks = new ArrayList<>();
-        if (chunks.size() != embeddings.size()) {
-            throw new IllegalStateException("Chunk and embedding counts do not match.");
-        }
 
         for (int i = 0; i < chunks.size(); i++) {
 
             DocumentChunk documentChunk = new DocumentChunk();
 
-            documentChunk.setDocument(savedDocument);
+            documentChunk.setDocument(document);
             documentChunk.setChunkNumber(i + 1);
             documentChunk.setChunkText(chunks.get(i));
             documentChunk.setEmbedding(embeddings.get(i));
 
             documentChunks.add(documentChunk);
         }
+
         documentChunkRepository.saveAll(documentChunks);
-        return response;
     }
+
     @Override
     public List<DocumentResponse> getAllDocuments() {
 
         List<Document> documents = documentRepository.findAll();
+
         List<DocumentResponse> responses = new ArrayList<>();
 
         for (Document document : documents) {
@@ -142,6 +153,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             responses.add(response);
         }
+
         return responses;
     }
 
@@ -151,6 +163,13 @@ public class DocumentServiceImpl implements DocumentService {
         if (!documentRepository.existsById(id)) {
             throw new RuntimeException("Document not found with id: " + id);
         }
+
         documentRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteAllDocuments() {
+        if(documentRepository != null)
+        documentRepository.deleteAll();
     }
 }

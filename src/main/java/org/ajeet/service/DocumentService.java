@@ -15,4 +15,5 @@ public interface DocumentService {
     List<DocumentResponse> getAllDocuments();
 
     void deleteDocument(Integer id);
+    void deleteAllDocuments();
 }

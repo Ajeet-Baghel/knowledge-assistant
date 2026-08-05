@@ -2,7 +2,7 @@ package org.ajeet.service.embedding;
 import java.util.List;
 
 
-public interface EmbedingService {
+public interface EmbeddingService {
 
     float[] generateEmbedding(String text);
 

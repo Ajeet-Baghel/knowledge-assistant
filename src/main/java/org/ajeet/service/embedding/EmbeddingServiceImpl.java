@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class EmbeddingServiceImpl implements EmbedingService {
+public class EmbeddingServiceImpl implements EmbeddingService {
 
     private final EmbeddingModel embeddingModel;
 
