@@ -8,18 +8,15 @@ import java.util.List;
 @Service
 public class ChunkingServiceImpl implements ChunkingService {
 
+    private static final int MAX_CHUNK_SIZE = 800;
+    private static final int CHUNK_OVERLAP = 150;
+
     @Override
     public List<String> chunkText(String text) {
 
-        if (text == null || text.isBlank()) {
-            return new ArrayList<>();
-        }
-
-        String[] paragraphs = text.split("\\R\\s*\\R");
+        String[] paragraphs = text.split("\\n\\s*\\n");
 
         List<String> chunks = new ArrayList<>();
-
-        final int MAX_CHUNK_SIZE = 500;
 
         StringBuilder currentChunk = new StringBuilder();
 
@@ -27,21 +24,24 @@ public class ChunkingServiceImpl implements ChunkingService {
 
             paragraph = paragraph.trim();
 
-            if (!paragraph.isBlank()) {
-
-                if (currentChunk.length() + paragraph.length() +2 > MAX_CHUNK_SIZE) {
-
-                    chunks.add(currentChunk.toString().trim());
-
-                    currentChunk.setLength(0);
-
-                    currentChunk.append(paragraph).append("\n\n");
-
-                } else {
-
-                    currentChunk.append(paragraph).append("\n\n");
-                }
+            if (paragraph.isBlank()) {
+                continue;
             }
+
+            if (currentChunk.length() + paragraph.length() > MAX_CHUNK_SIZE) {
+
+                if (!currentChunk.isEmpty()) {
+                    chunks.add(currentChunk.toString().trim());
+                    currentChunk.setLength(0);
+                }
+
+                chunks.add(currentChunk.toString().trim());
+
+                currentChunk.setLength(0);
+            }
+
+            currentChunk.append(paragraph)
+                    .append("\n\n");
         }
 
         if (!currentChunk.isEmpty()) {
@@ -50,5 +50,6 @@ public class ChunkingServiceImpl implements ChunkingService {
 
         return chunks;
     }
+
 
 }

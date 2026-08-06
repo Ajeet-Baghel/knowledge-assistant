@@ -1,5 +1,6 @@
 package org.ajeet.controller;
 
+import org.ajeet.dto.RagAskRequest;
 import org.ajeet.service.rag.RagService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +18,8 @@ public class RagController {
     }
 
     @PostMapping("/ask")
-    public String ask(@RequestBody String question) {
-        return ragService.ask(question);
+    public String ask(@RequestBody RagAskRequest request) {
+        return ragService.ask(request.getQuestion());
     }
 
 }

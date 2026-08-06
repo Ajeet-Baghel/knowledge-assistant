@@ -17,9 +17,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
 
     @Override
     public float[] generateEmbedding(String text) {
-
         return embeddingModel.embed(text);
-
     }
 
     @Override
@@ -29,7 +27,6 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         for (String text : texts) {
             embeddings.add(generateEmbedding(text));
         }
-
         return embeddings;
 
     }

@@ -28,7 +28,6 @@ public class RagServiceImpl implements RagService {
         StringBuilder context = new StringBuilder();
 
         for (SemanticSearchResponse chunk : chunks) {
-
             context.append(chunk.getChunkText())
                     .append("\n\n");
         }

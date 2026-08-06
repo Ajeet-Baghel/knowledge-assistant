@@ -5,8 +5,10 @@ import org.ajeet.entity.DocumentChunk;
 import org.ajeet.repository.DocumentChunkRepository;
 import org.ajeet.service.embedding.EmbeddingService;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -25,18 +27,14 @@ public class SemanticSearchServiceImpl implements SemanticSearchService {
 
     @Override
     public List<SemanticSearchResponse> search(String query) {
-
         float[] embedding = embeddingService.generateEmbedding(query);
-
-        String vector = toVector(embedding);
-
+        String vector = Arrays.toString(embedding);
         List<DocumentChunk> chunks =
                 documentChunkRepository.findSimilarChunks(vector, 5);
 
         List<SemanticSearchResponse> responses = new ArrayList<>();
 
         for (DocumentChunk chunk : chunks) {
-
             SemanticSearchResponse response =
                     new SemanticSearchResponse();
 
@@ -47,24 +45,6 @@ public class SemanticSearchServiceImpl implements SemanticSearchService {
         }
 
         return responses;
-    }
-
-    private String toVector(float[] embedding) {
-
-        StringBuilder vector = new StringBuilder("[");
-
-        for (int i = 0; i < embedding.length; i++) {
-
-            vector.append(embedding[i]);
-
-            if (i < embedding.length - 1) {
-                vector.append(",");
-            }
-        }
-
-        vector.append("]");
-
-        return vector.toString();
     }
 
 }
