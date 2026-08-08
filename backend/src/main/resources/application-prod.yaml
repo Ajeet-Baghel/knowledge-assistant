@@ -7,18 +7,19 @@ spring:
   ai:
     model:
       chat: google-genai
-      embedding: google-genai
+      embedding:
+        text: google-genai
 
     google:
       genai:
         api-key: ${GEMINI_API_KEY}
 
         chat:
-          options:
-            model: gemini-2.5-flash
+          model: gemini-2.5-flash
 
         embedding:
-          options:
+          api-key: ${GEMINI_API_KEY}
+          text:
             model: text-embedding-004
 
 file:
