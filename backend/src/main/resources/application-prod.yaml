@@ -5,19 +5,16 @@ spring:
     password: ${DATABASE_PASSWORD}
 
   ai:
-    model:
-      chat: google-genai
-      embedding: google-genai
-
     google:
       genai:
         api-key: ${GEMINI_API_KEY}
 
         chat:
-          model: gemini-2.5-flash
+          options:
+            model: gemini-2.5-flash
 
         embedding:
-          text:
+          options:
             model: text-embedding-004
 
 file:
