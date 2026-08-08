@@ -14,9 +14,13 @@ public class ChunkingServiceImpl implements ChunkingService {
     @Override
     public List<String> chunkText(String text) {
 
-        String[] paragraphs = text.split("\\n\\s*\\n");
-
         List<String> chunks = new ArrayList<>();
+
+        if (text == null || text.isBlank()) {
+            return chunks;
+        }
+
+        String[] paragraphs = text.split("\\n\\s*\\n");
 
         StringBuilder currentChunk = new StringBuilder();
 
@@ -32,10 +36,7 @@ public class ChunkingServiceImpl implements ChunkingService {
 
                 if (!currentChunk.isEmpty()) {
                     chunks.add(currentChunk.toString().trim());
-                    currentChunk.setLength(0);
                 }
-
-                chunks.add(currentChunk.toString().trim());
 
                 currentChunk.setLength(0);
             }
@@ -50,6 +51,4 @@ public class ChunkingServiceImpl implements ChunkingService {
 
         return chunks;
     }
-
-
 }
