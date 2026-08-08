@@ -1,0 +1,21 @@
+spring:
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+
+        chat:
+            model: gemini-2.5-flash
+
+        embedding:
+          text:
+            model: text-embedding-004
+
+file:
+  upload-dir: uploads

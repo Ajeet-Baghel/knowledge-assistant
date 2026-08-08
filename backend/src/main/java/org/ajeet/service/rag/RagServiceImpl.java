@@ -12,12 +12,15 @@ public class RagServiceImpl implements RagService {
 
     private final ChatClient chatClient;
     private final SemanticSearchService semanticSearchService;
+    private final RagPromptBuilder ragPromptBuilder;
 
     public RagServiceImpl(ChatClient.Builder chatClientBuilder,
-                          SemanticSearchService semanticSearchService) {
+                          SemanticSearchService semanticSearchService,
+                          RagPromptBuilder ragPromptBuilder) {
 
         this.chatClient = chatClientBuilder.build();
         this.semanticSearchService = semanticSearchService;
+        this.ragPromptBuilder = ragPromptBuilder;
     }
 
     @Override
@@ -25,30 +28,7 @@ public class RagServiceImpl implements RagService {
 
         List<SemanticSearchResponse> chunks = semanticSearchService.search(question);
 
-        StringBuilder context = new StringBuilder();
-
-        for (SemanticSearchResponse chunk : chunks) {
-            context.append(chunk.getChunkText())
-                    .append("\n\n");
-        }
-
-        String prompt = """
-                You are a helpful AI assistant.
-                
-                Answer the user's question using ONLY the provided context.
-                
-                If the answer is not present in the context,
-                say "I couldn't find that information in the uploaded documents."
-                
-                Context:
-                
-                %s
-                
-                Question:
-                
-                %s
-                """.formatted(context.toString(), question);
-
+        String prompt = ragPromptBuilder.build(question, chunks);
         return chatClient
                 .prompt()
                 .user(prompt)

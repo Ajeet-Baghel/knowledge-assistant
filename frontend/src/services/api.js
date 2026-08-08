@@ -5,7 +5,7 @@ import axios from 'axios';
 // proxy (see vite.config.js), which forwards to the Spring Boot backend.
 const api = axios.create({
   baseURL: '/',
-  timeout: 30000,
+  timeout: 120000,
 });
 
 api.interceptors.response.use(
