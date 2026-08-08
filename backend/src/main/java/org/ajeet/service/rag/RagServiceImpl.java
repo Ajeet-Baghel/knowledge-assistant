@@ -26,13 +26,47 @@ public class RagServiceImpl implements RagService {
     @Override
     public String ask(String question) {
 
-        List<SemanticSearchResponse> chunks = semanticSearchService.search(question);
+        List<SemanticSearchResponse> chunks =
+                semanticSearchService.search(question);
 
         String prompt = ragPromptBuilder.build(question, chunks);
-        return chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .content();
+
+        System.out.println("===== RAG DEBUG =====");
+        System.out.println("Question: " + question);
+        System.out.println("Chunks found: " + chunks.size());
+        System.out.println("Prompt length: " + prompt.length());
+        System.out.println("=====================");
+
+        try {
+
+            return chatClient
+                    .prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
+
+        } catch (Exception e) {
+
+            System.err.println("===== GEMINI CHAT ERROR =====");
+            e.printStackTrace();
+            System.err.println("=============================");
+
+            throw e;
+        }
     }
+
+
+//    @Override
+//    public String ask(String question) {
+//
+//        List<SemanticSearchResponse> chunks = semanticSearchService.search(question);
+//
+//        String prompt = ragPromptBuilder.build(question, chunks);
+//        return chatClient
+//                .prompt()
+//                .user(prompt)
+//                .call()
+//                .content();
+//    }
 }
+

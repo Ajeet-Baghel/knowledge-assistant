@@ -13,6 +13,8 @@ spring:
     google:
       genai:
         api-key: ${GEMINI_API_KEY}
+        project-id: ${GOOGLE_CLOUD_PROJECT}
+
 
         chat:
           options:
