@@ -5,6 +5,10 @@ spring:
     password: PostgreSQL@2026
 
   ai:
+    model:
+      chat: ollama
+      embedding: ollama
+
     ollama:
       base-url: http://localhost:11434
 
