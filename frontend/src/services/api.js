@@ -4,7 +4,7 @@ import axios from 'axios';
 // Base URL is left empty so requests go through the Vite dev-server
 // proxy (see vite.config.js), which forwards to the Spring Boot backend.
 const api = axios.create({
-  baseURL: '/',
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 120000,
 });
 
