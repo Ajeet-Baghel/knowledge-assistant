@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rag")
-@CrossOrigin(origins = "http://localhost:5173")
 public class RagController {
 
     private final RagService ragService;
