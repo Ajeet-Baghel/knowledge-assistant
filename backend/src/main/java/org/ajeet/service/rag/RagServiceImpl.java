@@ -31,12 +31,6 @@ public class RagServiceImpl implements RagService {
 
         String prompt = ragPromptBuilder.build(question, chunks);
 
-        System.out.println("===== RAG DEBUG =====");
-        System.out.println("Question: " + question);
-        System.out.println("Chunks found: " + chunks.size());
-        System.out.println("Prompt length: " + prompt.length());
-        System.out.println("=====================");
-
         try {
 
             return chatClient
