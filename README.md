@@ -1,54 +1,106 @@
-# Enterprise Knowledge Assistant (RAG Backend)
+# AI Knowledge Assistant[RAG based]
 
-A **Spring Boot** based Retrieval-Augmented Generation (RAG) backend that allows users to upload enterprise documents, generate vector embeddings, and query them using an AI-powered chat interface.
+An AI-powered document assistant built with **Spring Boot, Spring AI, PostgreSQL/pgvector, and Google Gemini**.
 
-Detailed documentation is maintained in the `docs/` directory:
+Users can upload PDF documents and ask questions about their content. The application uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant document chunks before generating an answer.
 
-- [Requirements Document](docs/requirements.md)
-- [Product Requirements Document](docs/prd.md)
-- [Project Roadmap](docs/project-roadmap.md)
-- [Architecture & Design](docs/architecture.md)
+## 🚀 Live Demo
 
-## Tech Stack
+- Frontend: https://knowledge-assistant-nine.vercel.app
+- Backend: https://knowledge-assistant-s20w.onrender.com
 
-| Category        | Technology               |
-| --------------- | ------------------------ |
-| Language        | Java 21                  |
-| Framework       | Spring Boot 4.1          |
-| Build Tool      | Maven                    |
-| Database        | PostgreSQL               |
-| Vector Database | pgvector                 |
-| ORM             | Spring Data JPA          |
-| AI Integration  | Spring AI 2.0            |
-| LLM             | Ollama / OpenAI / Gemini |
-| PDF Processing  | Apache PDFBox            |
-| API Testing     | Postman                  |
+## ✨ Features
 
-## Getting Started
+- Upload PDF documents
+- Extract and chunk document text
+- Generate vector embeddings
+- Store embeddings using PostgreSQL + pgvector
+- Semantic similarity search
+- RAG-based question answering
+- Google Gemini for embeddings and response generation
+- React frontend with Vite
+- Deployed frontend and backend
 
-### Clone the Repository
+## 🛠️ Tech Stack
 
-```bash
-git clone <repository-url>
-cd knowledge-assistant
-```
+### Frontend
+- React
+- Vite
+- Axios
 
-### Configure PostgreSQL
+### Backend
+- Java 21
+- Spring Boot
+- Spring AI
+- Spring Data JPA
+- Hibernate
+- Apache PDFBox
 
-Create a PostgreSQL database and enable the pgvector extension.
+### AI
+- Google Gemini
+- Gemini Embeddings
+- Retrieval-Augmented Generation (RAG)
 
-```sql
-CREATE EXTENSION IF NOT EXISTS vector;
-```
+### Database
+- PostgreSQL
+- pgvector
+- Neon
 
-Update `src/main/resources/application.yaml` with your database credentials.
+### Deployment
+- Vercel — Frontend
+- Render — Backend
+- Neon — PostgreSQL
 
-### Run the Application
+## 🏗️ Architecture
 
-```bash
-mvn spring-boot:run
-```
+```text
+┌─────────────────────┐
+│      React + Vite   │
+│      (Vercel)       │
+└──────────┬──────────┘
+           │ HTTPS
+           ▼
+┌─────────────────────┐
+│    Spring Boot      │
+│     (Render)        │
+└──────┬─────────┬────┘
+       │         │
+       │         │
+       ▼         ▼
+┌────────────┐  ┌────────────────┐
+│ PostgreSQL │  │ Google Gemini  │
+│ + pgvector │  │ Embeddings +   │
+│   (Neon)   │  │ Chat Model     │
+└────────────┘  └────────────────┘
 
-## License
 
-This project is created for educational and portfolio purposes.
+🔄 Document Processing Flow
+
+PDF Upload
+    ↓
+PDF Text Extraction
+    ↓
+Text Chunking
+    ↓
+Generate Embeddings
+    ↓
+Store Chunks + Vectors
+    ↓
+PostgreSQL + pgvector
+
+
+🧠 RAG Data Flow
+
+User Question
+      ↓
+Generate Query Embedding
+      ↓
+Vector Similarity Search
+      ↓
+Retrieve Relevant Chunks
+      ↓
+Build RAG Prompt
+      ↓
+Google Gemini
+      ↓
+AI Generated Answer
